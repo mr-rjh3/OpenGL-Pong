@@ -1,9 +1,7 @@
-
-
-
 #include <stdio.h>
 #include <GL/glut.h>
 #include <GL/gl.h>
+#include <GL_A/glfw.h>
 #include <math.h>
 #include <iostream>
 
@@ -11,8 +9,25 @@
 
 using namespace std;
 
-GLsizei minWidth = 800, minHeight = 600;
-Game game;
+    // TODO: Sound effects
+    // TODO: Better colors / graphics
+    // TODO: AI?
+    // TODO: Scoreboard
+
+
+GLsizei minWidth = 800, minHeight = 600; // minimum window size
+bool leftUp = false, leftDown = false, rightUp = false, rightDown = false; // booleans for key presses
+Game game; // create a game object
+
+void init(void) {
+	glutInitDisplayMode(GLUT_DOUBLE);  // GLUT_DOUBLE for double frame buffer
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(minWidth, minHeight);
+	glutCreateWindow("Pong");
+    glClearColor(0.0, 0.0, 0.0, 0.0); // set background color to gray
+	glMatrixMode(GL_PROJECTION);
+	gluOrtho2D(0.0, minWidth, minHeight, 0.0); // set top left as origin
+}
 
 void circlePlotPoints(GLint x, GLint y, GLint radius) {
 	glBegin(GL_LINE_LOOP); // outline of circle
@@ -24,123 +39,171 @@ void circlePlotPoints(GLint x, GLint y, GLint radius) {
 	glFlush( );
 			
 }
-void circlePlotPointsFill(GLint x, GLint y, GLint radius) {
-	glBegin(GL_POLYGON); // filled circle
-	for (int i = 0; i < 360; i++) { // 360 degree
-		float degInRad = i*3.14159/180; // convert to radian
-		glVertex2f(cos(degInRad)*radius + x, sin(degInRad)*radius + y);
-	}
-	glEnd();
-	glFlush( );
+void circleFillPoints(GLint x, GLint y, GLint radius) {
+    glBegin(GL_POLYGON); // outline of circle
+    for (int i = 0; i < 360; i++) {
+        float degInRad = i*3.14159/180;
+        glVertex2f(cos(degInRad)*radius + x, sin(degInRad)*radius + y);
+    }
+    glEnd();
+    glFlush( );       
+}
+void squareFill(GLint x, GLint y, GLint width, GLint height) {
+    glBegin(GL_QUADS);
+    glVertex2i(x - width, y + height); // top left
+    glVertex2i(x + width, y + height); // top right
+    glVertex2i(x + width, y - height); // bottom right
+    glVertex2i(x - width, y - height); // bottom left
+    glEnd();
+    glFlush( );
+}
+void squareOutline(GLint x, GLint y, GLint width, GLint height) {
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(x - width, y + height); // top left
+    glVertex2i(x + width, y + height); // top right
+    glVertex2i(x + width, y - height); // bottom right
+    glVertex2i(x - width, y - height); // bottom left
+    glEnd();
+    glFlush( );
 }
 
-void init(void) {
-	glutInitDisplayMode(GLUT_DOUBLE);  // GLUT_DOUBLE for double frame buffer
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(minWidth, minHeight);
-	glutCreateWindow("Pong Riley Huston");
-	glClearColor(1.0, 1.0, 1.0, 0.0); // Set display-window color to white
-	glMatrixMode(GL_PROJECTION);
-	gluOrtho2D(0.0, minWidth, minHeight, 0.0); // set top left as origin
-}
+void drawBall(Ball ball) {
 
+    // Draw the ball
+    glColor3f(1, 1, 1);
+
+    circleFillPoints(ball.x, ball.y, ball.radius);
+
+    // Draw the ball's outline
+    glColor3f(1, 1, 1);
+    glPointSize(2); // set point size to 2
+    glLineWidth(2); // set line width to 2 pixel
+    circlePlotPoints(game.ball.x, game.ball.y, game.ball.radius);
+}
+void drawPaddle(Paddle paddle){
+    // Draw the paddle
+    glColor3f(1, 1, 1);
+    squareFill(paddle.x, paddle.y, paddle.width, paddle.height);
+
+    // Draw the paddle's outline
+    glColor3f(1, 1, 1);
+    glPointSize(2); // set point size to 2
+    glLineWidth(2); // set line width to 2 pixel
+    squareOutline(paddle.x, paddle.y, paddle.width, paddle.height);
+    
+}
 void drawGame() {
-    // draw the game
+    // draw all game objects
     glClear(GL_COLOR_BUFFER_BIT); // Clear display window.
 
-    // draw filled circle using openGL
-    glColor3f(0, 0, 0);
-    circlePlotPointsFill(game.ball.x, game.ball.y, game.ball.radius);
-        
-    // stroke outline of circle
-    glColor3f(0, 0, 0); // black
-    
-    glPointSize(1); // set point size to 1
-    glLineWidth(1); // set line width to 1 pixel
-    circlePlotPoints(game.ball.x, game.ball.y, game.ball.radius);
-
     // draw the paddles
-    glColor3f(0, 0, 0);
-    glBegin(GL_QUADS);
-    glVertex2i(game.paddleLeft.x - game.paddleLeft.width, game.paddleLeft.y + game.paddleLeft.height); // top left
-    glVertex2i(game.paddleLeft.x + game.paddleLeft.width, game.paddleLeft.y + game.paddleLeft.height); // top right
-    glVertex2i(game.paddleLeft.x + game.paddleLeft.width, game.paddleLeft.y - game.paddleLeft.height); // bottom right
-    glVertex2i(game.paddleLeft.x - game.paddleLeft.width, game.paddleLeft.y - game.paddleLeft.height); // bottom left
-    glEnd();
+    drawPaddle(game.paddleLeft);
+    drawPaddle(game.paddleRight);
 
-    glColor3f(0, 0, 0);
-    glBegin(GL_QUADS);
-    glVertex2i(game.paddleRight.x - game.paddleRight.width, game.paddleRight.y + game.paddleRight.height); // top left
-    glVertex2i(game.paddleRight.x + game.paddleRight.width, game.paddleRight.y + game.paddleRight.height); // top right
-    glVertex2i(game.paddleRight.x + game.paddleRight.width, game.paddleRight.y - game.paddleRight.height); // bottom right
-    glVertex2i(game.paddleRight.x - game.paddleRight.width, game.paddleRight.y - game.paddleRight.height); // bottom left
-    glEnd();
+    // draw the ball
+    drawBall(game.ball);
 
 	glFlush(); // Process all OpenGL routines as quickly as possible.
 	glutSwapBuffers(); // Swap front and back buffers
 }
+
 void idle() {
     // called every frame
-    game.ballMove();
-    game.ballBounce();
-    cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<endl;
+
+    // cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<endl;
+    // cout<<leftUp<<" "<<leftDown<<" "<<rightUp<<" "<<rightDown<<" "<<game.scored<<endl;
+    // cout<<"Left: "<<game.paddleLeft.y<<" Right: "<<game.paddleRight.y<<endl;
+
+    game.ballMove(); // move the ball
+    game.checkCollision(); // check if the ball has hit a wall or paddle and change the direction if it has
+
+    // move the paddles
+    if(leftUp) { // Left paddle up
+        game.paddleLeftMoveUp();
+    }
+    if(leftDown) { // Left paddle down
+        game.paddleLeftMoveDown();
+    }
+    if(rightUp) { // Right paddle up
+        game.paddleRightMoveUp();
+    }
+    if(rightDown) { // Right paddle down
+        game.paddleRightMoveDown();
+    }
     glutPostRedisplay();
 	glFlush();
 }
 
 void keyboardFunc(unsigned char Key, int x, int y){
-        // TODO add more with arrow keys idk why it doesn't work also make it less janky
     switch(Key){
         case 'w':
-            game.paddleLeft.y -= 10;
+            leftUp = true;
             break;
         case 's':
-            game.paddleLeft.y += 10;
+            leftDown = true;
             break;
-        case 'i':
-            game.paddleRight.y -= 10;
+        case 27: // escape key
+            exit(0);
             break;
-        case 'k':
-            game.paddleRight.y += 10;
+        case ' ':
+            game.pauseGame();
+            break;
+        case 'r':
+            game.resetGame();
             break;
         default:
             break;
     }
-    glutPostRedisplay();
-	glFlush();
-
+}
+void keyboardUpFunc(unsigned char Key, int x, int y){
+    switch(Key){
+        case 'w':
+            leftUp = false;
+            break;
+        case 's':
+            leftDown = false;
+            break;
+        default:
+            break;
+    }
+}
+void specialFunc(int Key, int x, int y){
+    switch(Key){
+        case GLUT_KEY_UP:
+            rightUp = true;
+            break;
+        case GLUT_KEY_DOWN:
+            rightDown = true;
+            break;
+        default:
+            break;
+    }
+}
+void specialUpFunc(int Key, int x, int y){
+    switch(Key){
+        case GLUT_KEY_UP:
+            rightUp = false;
+            break;
+        case GLUT_KEY_DOWN:
+            rightDown = false;
+            break;
+        default:
+            break;
+    }
 }
 
 int main(int argc, char** argv) {
 	setvbuf(stdout, NULL, _IONBF, 0); // For Eclipse stdout debugging
-	setvbuf(stderr, NULL, _IONBF, 0);
-    game.ball.x = 400;
-    game.ball.y = 300;
-    game.ball.radius = 10;
-    game.ball.xSpeed = 1;
-    game.ball.ySpeed = 1;
-
-    game.paddleLeft.x = 100;
-    game.paddleLeft.y = 300;
-    game.paddleLeft.width = 10;
-    game.paddleLeft.height = 100;
-
-    game.paddleRight.x = 700;
-    game.paddleRight.y = 300;
-    game.paddleRight.width = 10;
-    game.paddleRight.height = 100;
-
 
 	glutInit(&argc, argv);
 	init();
 	glutDisplayFunc(drawGame);
-	// glutReshapeFunc(winReshapeFcn);
-	// glutMouseFunc(mouseActionFcn);
     glutKeyboardFunc(keyboardFunc);
+    glutKeyboardUpFunc(keyboardUpFunc);
+    glutSpecialFunc(specialFunc);
+    glutSpecialUpFunc(specialUpFunc);
 	glutIdleFunc(idle);
-	// glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutMainLoop();
-
 
 	return 0;
 }

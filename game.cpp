@@ -1,4 +1,3 @@
-
 #include "game.hpp"
 #include <stdio.h>
 #include <math.h>
@@ -7,50 +6,118 @@
 
 using namespace std;
 
-    
 void Game::ballMove() {
-    ball.x += ball.xSpeed;
-    ball.y += ball.ySpeed;
+    if(!scored && !paused) {
+        ball.x += ball.xSpeed;
+        ball.y += ball.ySpeed;
+    }
 }
-
-void Game::ballBounce() {
-    // right wall / paddle
+void Game::checkCollision() {
+    // right paddle
     if(ball.x + ball.radius >= paddleRight.x - paddleRight.width && ball.x - ball.radius < paddleRight.x + paddleRight.width) { // if the ball.x is within the paddle.x range
         if(ball.y + ball.radius >= paddleRight.y - paddleRight.height && ball.y - ball.radius <= paddleRight.y + paddleRight.height) { // if the ball.y is within the paddle.y range
-            // pick a random angle between 45 and 135 degrees
-            // TODO might not want it random
-            float angle = (rand() % 90 + 45) * (M_PI / 180);
-            ball.xSpeed = cos(angle) * 2;
-            ball.ySpeed = sin(angle) * 2;
+            // Bounce ball
+            if(ball.xSpeed > 0){ // only bounce if the ball is moving towards the paddle to prevent multiple bounces
+                if(abs(ball.xSpeed) < SPEED_CAP) { // Caps the speed 
+                    ball.xSpeed *= -1.05; // increase the speed by 5% and invert the direction
+                }
+                else { // if the speed is capped
+                    ball.xSpeed = -ball.xSpeed; // just invert the direction
+                }
+            }
+                
         }
     }
-    // left wall / paddle
+    // left paddle
     if(ball.x - ball.radius <= paddleLeft.x + paddleLeft.width && ball.x + ball.radius > paddleLeft.x - paddleLeft.width) { // if the ball.x is within the paddle.x range
         if(ball.y + ball.radius >= paddleLeft.y - paddleLeft.height && ball.y - ball.radius <= paddleLeft.y + paddleLeft.height) { // if the ball.y is within the paddle.y range
-            // pick a random angle between 45 and 135 degrees
-            // TODO might not want it random
-            float angle = (rand() % 90 + 45) * (M_PI / 180);
-            ball.xSpeed = cos(angle) * 2;
-            ball.ySpeed = sin(angle) * 2;
+            // Bounce ball
+            if(ball.xSpeed < 0){ // only bounce if the ball is moving towards the paddle to prevent multiple bounces
+                if(abs(ball.xSpeed) < SPEED_CAP) { // Caps the speed
+                    ball.xSpeed *= -1.05; // increase the speed by 5% and invert the direction
+                }
+                else{ // if the speed is capped
+                    ball.xSpeed = -ball.xSpeed; // just invert the direction
+                }
+            }
         }
     }
-    if (ball.y + ball.radius >= 600) { // bottom wall
+    // bottom wall
+    if (ball.y + ball.radius >= 600) { 
         ball.ySpeed = -ball.ySpeed;
     }
-    if (ball.y - ball.radius <= 0) { // top wall
+    // top wall
+    if (ball.y - ball.radius <= 0) { 
         ball.ySpeed = -ball.ySpeed;
     }
-    if(ball.x + ball.radius >= 800) { // right wall 
-        //TODO: add score
-        ball.x = 400;
-        ball.y = 300;
-        ball.xSpeed = -ball.xSpeed;
+    // right wall 
+    if(ball.x + ball.radius >= 800) { 
+        scorePoint();
     }
-    if(ball.x - ball.radius <= 0) { // left wall
-        //TODO: add score
-        ball.x = 400;
-        ball.y = 300;
-        ball.xSpeed = -ball.xSpeed;
+    // left wall
+    if(ball.x - ball.radius <= 0) { 
+        scorePoint();
     }
+}
 
+void Game::paddleLeftMoveUp(){
+    if(!paused && paddleLeft.y - paddleLeft.height> 0){
+        paddleLeft.y -= paddleLeft.speed;
+        scored = false;
+    }
+}
+void Game::paddleLeftMoveDown(){
+    if(!paused && paddleLeft.y + paddleLeft.height < 600){
+        paddleLeft.y += paddleLeft.speed;
+        scored = false;
+    }
+}
+void Game::paddleRightMoveUp(){
+    if(!paused && paddleRight.y - paddleRight.height > 0){
+        paddleRight.y -= paddleRight.speed;
+        scored = false;
+    }
+}
+void Game::paddleRightMoveDown(){
+    if(!paused && paddleRight.y + paddleRight.height < 600){
+        paddleRight.y += paddleRight.speed;
+        scored = false;
+    }
+}
+
+void Game::resetGame() {
+    ball.x = 400;
+    ball.y = 300;
+    ball.xSpeed = 2;
+    ball.ySpeed = 2;
+    paddleLeft.y = 300;
+    paddleRight.y = 300;
+    score [0] = 0;
+    score [1] = 0;
+    scored = true;
+    paused = false;
+}
+void Game::scorePoint() {
+        scored = true;
+        if(ball.x + ball.radius >= 800) { // right wall 
+            score[0]++;
+        }
+        if(ball.x - ball.radius <= 0) { // left wall
+            score[1]++;
+        }
+        if(ball.xSpeed > 0) {
+            ball.xSpeed = -2;
+        }
+        else {
+            ball.xSpeed = 2;
+        }
+        ball.ySpeed = 2;
+        ball.x = 400;
+        ball.y = 300;
+        paddleLeft.y = 300;
+        paddleRight.y = 300;
+        cout<<"Score: "<<score[0]<<" - "<<score[1]<<endl;
+}
+void Game::pauseGame() {
+    paused = !paused;
 }

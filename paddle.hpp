@@ -12,7 +12,7 @@ class Paddle {
     public:
         Paddle(){
             y = 300;
-            width = 10;
+            width = 5;
             height = 50;
             speed = 5;
         }

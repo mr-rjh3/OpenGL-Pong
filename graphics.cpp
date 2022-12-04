@@ -4,6 +4,7 @@
 #include <GL_A/glfw.h>
 #include <math.h>
 #include <iostream>
+#include <time.h>
 
 #include "game.hpp"
 
@@ -14,10 +15,13 @@ using namespace std;
     // TODO: AI?
     // TODO: Scoreboard
 
+#define MAX_FPS 120
 
 GLsizei minWidth = 800, minHeight = 600; // minimum window size
 bool leftUp = false, leftDown = false, rightUp = false, rightDown = false; // booleans for key presses
 Game game; // create a game object
+int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
+int frameCount = 0; // used for calculating the time between frames
 
 void init(void) {
 	glutInitDisplayMode(GLUT_DOUBLE);  // GLUT_DOUBLE for double frame buffer
@@ -94,6 +98,8 @@ void drawPaddle(Paddle paddle){
 }
 void drawGame() {
     // draw all game objects
+    
+
     glClear(GL_COLOR_BUFFER_BIT); // Clear display window.
 
     // draw the paddles
@@ -105,9 +111,18 @@ void drawGame() {
 
 	glFlush(); // Process all OpenGL routines as quickly as possible.
 	glutSwapBuffers(); // Swap front and back buffers
+
+    // calculate the frame rate
+    frameCount++;
+    timeEnd = time(NULL);
+    if(timeEnd - timeStart >= 1) { // if a second has passed
+        cout << "FPS: " << frameCount << endl;
+        frameCount = 0;
+        timeStart =  timeEnd;
+    }
 }
 
-void idle() {
+void idle(int) {
     // called every frame
 
     // cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<endl;
@@ -132,6 +147,7 @@ void idle() {
     }
     glutPostRedisplay();
 	glFlush();
+    glutTimerFunc(1000/MAX_FPS, idle, 0); // call idle again after 1000/MAX_FPS milliseconds to maintain the frame rate
 }
 
 void keyboardFunc(unsigned char Key, int x, int y){
@@ -202,7 +218,10 @@ int main(int argc, char** argv) {
     glutKeyboardUpFunc(keyboardUpFunc);
     glutSpecialFunc(specialFunc);
     glutSpecialUpFunc(specialUpFunc);
-	glutIdleFunc(idle);
+
+    glutTimerFunc(1000/MAX_FPS, idle, 0); // call the idle function every 1/MAX_FPS seconds
+
+	// glutIdleFunc(idle);
 	glutMainLoop();
 
 	return 0;

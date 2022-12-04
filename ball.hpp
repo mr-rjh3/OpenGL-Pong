@@ -2,7 +2,6 @@
 #define BALL_HPP
 
 #include <iostream>
-#include "paddle.hpp"
 
 using namespace std;
 

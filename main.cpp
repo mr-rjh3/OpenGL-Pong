@@ -70,7 +70,7 @@ void idle(int)
 {
     // called every frame
 
-    // cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<endl;
+    // cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<" Speed: "<<game.ball.speed<<endl;
     // cout<<leftUp<<" "<<leftDown<<" "<<rightUp<<" "<<rightDown<<" "<<game.scored<<endl;
     // cout<<"Left: "<<game.paddleLeft.y<<" Right: "<<game.paddleRight.y<<endl;
 
@@ -108,6 +108,9 @@ void mainMenuFcn(GLint menuOption) {
 	case 2: // pause game
         game.pauseGame();
         break;
+    case 3: // quit game
+        exit(0);
+        break;
 	}
 	glutPostRedisplay();
 }
@@ -133,6 +136,7 @@ void addMenu() {
 	glutAddMenuEntry("Restart", 1);
 	glutAddMenuEntry("Pause", 2);
 	glutAddSubMenu("Textures", textureMenuID);
+    glutAddMenuEntry("Quit", 3);
 }
 
 

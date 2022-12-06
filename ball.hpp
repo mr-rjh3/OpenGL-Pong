@@ -14,6 +14,7 @@ class Ball {
             x = 400;
             y = 300;
             radius = 10;
+            speed = 4; // total speed of the ball
             xSpeed = 2;
             ySpeed = 2;
         }
@@ -22,5 +23,6 @@ class Ball {
         float y; // y position of center of ball
         float xSpeed;
         float ySpeed;
+        float speed; // the speed of the ball
 };
 #endif

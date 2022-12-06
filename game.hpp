@@ -18,7 +18,7 @@ class Game {
             score[0] = 0;
             score[1] = 0;
             // Set speed cap for the ball
-            SPEED_CAP = 10; 
+            SPEED_CAP = 15; 
             // Set the boolean values
             scored = true; // True so we can start the game with the ball in the middle of the screen not moving
             paused = false;
@@ -39,6 +39,9 @@ class Game {
 
         void ballMove(); // move the ball based on the speed values (called every frame unless the game is paused)
         void checkCollision(); // check if the ball has hit a wall or paddle and change the direction if it has (called every frame unless the game is paused)
+
+        void leftPaddleBounce(); // changes the ySpeed of the ball based on the distance from the center of the paddle (called when the ball hits the left paddle)
+        void rightPaddleBounce(); // changes the ySpeed of the ball based on the distance from the center of the paddle (called when the ball hits the right paddle)
 
         void paddleLeftMoveUp(); // move the paddle based on the speed (called when the user presses a key)
         void paddleLeftMoveDown(); // move the paddle based on the speed (called when the user presses a key)

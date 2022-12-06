@@ -9,9 +9,41 @@ using namespace std;
 
 void Game::ballMove() {
     if(!scored && !paused && score[0] < MATCH_POINT && score[0] < MATCH_POINT){
+        // if ball is stuck on an axis nudge it
+        if(ball.xSpeed == 0){
+            cout<<"Ball is stuck on an axis, nudging it"<<endl;
+            cout<<"Ball xSpeed: "<<ball.xSpeed<<endl;
+            cout<<"Ball ySpeed: "<<ball.ySpeed<<endl;
+        }
         ball.x += ball.xSpeed;
         ball.y += ball.ySpeed;
     }
+}
+
+void Game::leftPaddleBounce(){
+    // Calculate the distance from the center of the paddle
+    float distance = ball.y - paddleLeft.y;
+    // Calculate the percentage of the distance from the center of the paddle
+    float percentage = distance / paddleLeft.height;
+    // Calculate the new ySpeed from the total speed based on the percentage
+    ball.ySpeed = ball.speed * percentage;    
+    // set the xSpeed to the remaining speed
+    ball.xSpeed = abs(ball.speed) - abs(ball.ySpeed);
+    // Play the hitPaddle sound
+    PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+void Game::rightPaddleBounce(){
+    // Calculate the distance from the center of the paddle
+    float distance =  paddleRight.y - ball.y;
+    // Calculate the percentage of the distance from the center of the paddle
+    float percentage = distance / paddleRight.height;
+    // Calculate the new ySpeed from the total speed based on the percentage
+    ball.ySpeed = ball.speed * percentage;    
+    // set the xSpeed to the remaining speed
+    ball.xSpeed = (abs(ball.speed) - abs(ball.ySpeed)) * -1;
+
+    // Play the hitPaddle sound
+    PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
 
 void Game::checkCollision() {
@@ -21,14 +53,13 @@ void Game::checkCollision() {
             // Bounce ball
             if(ball.xSpeed > 0){ // only bounce if the ball is moving towards the paddle to prevent multiple bounces
                 if(abs(ball.xSpeed) < SPEED_CAP) { // Caps the speed 
-                    ball.xSpeed *= -1.1; // increase the speed by 5% and invert the direction
+                    ball.speed *= -1.05; // increase the speed by 5% and invert the direction
                 }
                 else { // if the speed is capped
-                    ball.xSpeed = -ball.xSpeed; // just invert the direction
+                    ball.speed = -ball.speed; // just invert the direction
                 }
-                PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
-            }
-                
+                rightPaddleBounce();
+            }       
         }
     }
     // left paddle
@@ -37,12 +68,12 @@ void Game::checkCollision() {
             // Bounce ball
             if(ball.xSpeed < 0){ // only bounce if the ball is moving towards the paddle to prevent multiple bounces
                 if(abs(ball.xSpeed) < SPEED_CAP) { // Caps the speed
-                    ball.xSpeed *= -1.1; // increase the speed by 5% and invert the direction
+                    ball.speed *= -1.05; // increase the speed by 5% and invert the direction
                 }
                 else{ // if the speed is capped
-                    ball.xSpeed = -ball.xSpeed; // just invert the direction
+                    ball.speed = -ball.speed; // just invert the direction
                 }
-                PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
+                leftPaddleBounce();
             }
         }
     }

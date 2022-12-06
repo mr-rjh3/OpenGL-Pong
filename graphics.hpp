@@ -13,6 +13,7 @@ class graphics
         static void squareOutline(GLint x, GLint y, GLint width, GLint height);
         static void drawBall(const Game& game);
         static void drawPaddle(const Paddle& paddle);
+        static void drawMiddleLine();
 
     public:
         static void init(void);

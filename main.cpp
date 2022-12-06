@@ -100,6 +100,44 @@ void drawGame()
     graphics::drawGame(game);
 }
 
+void mainMenuFcn(GLint menuOption) {
+	switch (menuOption) {
+	case 1: // restart game
+        game.resetGame();
+		break;
+	case 2: // pause game
+        game.pauseGame();
+        break;
+	}
+	glutPostRedisplay();
+}
+void textureMenuFcn(GLint menuOption) {
+    switch (menuOption) {
+    case 1:
+        // TODO texture 1
+        break;
+    case 2:
+        // TODO texture 2
+        break;
+    }
+    glutPostRedisplay();
+}
+
+void addMenu() {
+	GLint textureMenuID;
+    textureMenuID = glutCreateMenu(textureMenuFcn);
+    glutAddMenuEntry("No Texture", 1);
+    glutAddMenuEntry("Texture", 2);
+
+	glutCreateMenu(mainMenuFcn); // Create main pop-up menu.
+	glutAddMenuEntry("Restart", 1);
+	glutAddMenuEntry("Pause", 2);
+	glutAddSubMenu("Textures", textureMenuID);
+}
+
+
+
+
 int main(int argc, char** argv) 
 {
 	setvbuf(stdout, NULL, _IONBF, 0); // For Eclipse stdout debugging
@@ -111,6 +149,9 @@ int main(int argc, char** argv)
     glutKeyboardUpFunc(keyboardUpFunc);
     glutSpecialFunc(specialFunc);
     glutSpecialUpFunc(specialUpFunc);
+    // add glut menu
+    addMenu();
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     glutTimerFunc(1000/MAX_FPS, idle, 0); // call the idle function every 1/MAX_FPS seconds
 

@@ -15,10 +15,7 @@
 
 using namespace std;
 
-    // TODO: Sound effects
     // TODO: Better colors / graphics
-    // TODO: AI?
-    // TODO: Scoreboard
 
 GLsizei winWidth = 800, winHeight = 600; // minimum window size
 int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
@@ -78,6 +75,7 @@ void graphics::squareOutline(GLint x, GLint y, GLint width, GLint height)
     glFlush( );
 }
 void renderText(GLint x, GLint y, const char *string) {
+    glColor3f(1.0, 1.0, 1.0);
     glRasterPos2i(x, y);
     for (int i = 0; i < strlen(string); i++) {
         // Make font size very large
@@ -88,12 +86,14 @@ void renderText(GLint x, GLint y, const char *string) {
 void graphics::drawBall(const Game& game) 
 {
     // Draw the ball
-    glColor3f(1, 1, 1);
+    // red
+    glColor3f(1.0, 1.2-fabs(game.ball.xSpeed/(float)game.SPEED_CAP), 1.2-fabs(game.ball.xSpeed/(float)game.SPEED_CAP));
+    // cout<<fabs((float)game.ball.xSpeed/(float)game.SPEED_CAP)<<endl;
 
     circleFillPoints(game.ball.x, game.ball.y, game.ball.radius);
 
     // Draw the ball's outline
-    glColor3f(1, 1, 1);
+    glColor3f(1.0, 1.2-fabs(game.ball.xSpeed/(float)game.SPEED_CAP), 1.0-fabs(game.ball.xSpeed/(float)game.SPEED_CAP));
     glPointSize(2); // set point size to 2
     glLineWidth(2); // set line width to 2 pixel
     circlePlotPoints(game.ball.x, game.ball.y, game.ball.radius);
@@ -112,10 +112,25 @@ void graphics::drawPaddle(const Paddle& paddle)
     
 }
 
+void graphics::drawMiddleLine(){
+    glColor3f(1, 1, 1);
+    glPointSize(2); // set point size to 2
+    glLineWidth(2); // set line width to 2 pixel
+    glBegin(GL_LINES);
+    for (int i = 0; i < winHeight; i += 20) {
+        glVertex2i(winWidth/2, i);
+        glVertex2i(winWidth/2, i + 10);
+    }
+    glEnd();
+}
+
 void graphics::drawGame(const Game& game) 
 {
     // draw all game objects
     glClear(GL_COLOR_BUFFER_BIT); // Clear display window.
+
+    // draw dotted line down middle
+    drawMiddleLine();
 
     // draw the paddles
     drawPaddle(game.paddleLeft);
@@ -125,16 +140,24 @@ void graphics::drawGame(const Game& game)
     drawBall(game);
 
     // draw the left score
-    glColor3f(1, 1, 1);
     char leftScore[10];
     sprintf(leftScore, "%d", game.score[0]);
     renderText(winWidth/2 - 32, 30, leftScore);
 
     // draw the right score
-    glColor3f(1, 1, 1);
     char rightScore[10];
     sprintf(rightScore, "%d", game.score[1]);
     renderText(winWidth/2 + 20, 30, rightScore);
+
+    // draw winner on the winning side once someone reaches 10 points
+    if (game.score[0] == game.MATCH_POINT) {
+        renderText(winWidth/2 - 200, winHeight/2, "Player 1 Wins!");
+        renderText(winWidth/2 - 200, winHeight/2 + 30, "Press 'r' to restart");
+    }
+    else if (game.score[1] == game.MATCH_POINT) {
+        renderText(winWidth/2 + 50, winHeight/2, "Player 2 Wins!");
+        renderText(winWidth/2 + 50, winHeight/2 + 30, "Press 'r' to restart");
+    }
 
     if(game.paused){
         glColor3f(1, 1, 1);

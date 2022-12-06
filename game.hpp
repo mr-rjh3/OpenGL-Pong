@@ -11,6 +11,7 @@ using namespace std;
  * Holds all information / methods for dealing with the game logic
  */
 class Game {
+
     public:
         Game(){ // constructor
             // set the initial score to 0
@@ -24,7 +25,10 @@ class Game {
             // set the initial paddle positions (Couldn't put this in paddle constructor due to default constructor issues)
             paddleLeft.x = 20;
             paddleRight.x = 780;
+            // set the match point
+            MATCH_POINT = 5;
         }
+        int MATCH_POINT;
         Ball ball;
         Paddle paddleLeft;
         Paddle paddleRight;

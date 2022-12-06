@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>
+#include <windows.h>
 
 using namespace std;
 
@@ -24,6 +25,7 @@ void Game::checkCollision() {
                 else { // if the speed is capped
                     ball.xSpeed = -ball.xSpeed; // just invert the direction
                 }
+                PlaySound(TEXT("sound.wav"), NULL, SND_FILENAME | SND_ASYNC);
             }
                 
         }
@@ -39,6 +41,7 @@ void Game::checkCollision() {
                 else{ // if the speed is capped
                     ball.xSpeed = -ball.xSpeed; // just invert the direction
                 }
+                PlaySound(TEXT("sound.wav"), NULL, SND_FILENAME | SND_ASYNC);
             }
         }
     }

@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "game.hpp"
+#include "graphics.hpp"
 
 using namespace std;
 
@@ -15,15 +16,13 @@ using namespace std;
     // TODO: AI?
     // TODO: Scoreboard
 
-#define MAX_FPS 120
-
 GLsizei minWidth = 800, minHeight = 600; // minimum window size
-bool leftUp = false, leftDown = false, rightUp = false, rightDown = false; // booleans for key presses
-Game game; // create a game object
 int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
 int frameCount = 0; // used for calculating the time between frames
 
-void init(void) {
+//Graphics functions-------------------------------------------------------------------------------------------------------------------------------
+void graphics::init(void) 
+{
 	glutInitDisplayMode(GLUT_DOUBLE);  // GLUT_DOUBLE for double frame buffer
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(minWidth, minHeight);
@@ -33,7 +32,8 @@ void init(void) {
 	gluOrtho2D(0.0, minWidth, minHeight, 0.0); // set top left as origin
 }
 
-void circlePlotPoints(GLint x, GLint y, GLint radius) {
+void graphics::circlePlotPoints(GLint x, GLint y, GLint radius) 
+{
 	glBegin(GL_LINE_LOOP); // outline of circle
 	for (int i = 0; i < 360; i++) {
 		float degInRad = i*3.14159/180;
@@ -43,7 +43,8 @@ void circlePlotPoints(GLint x, GLint y, GLint radius) {
 	glFlush( );
 			
 }
-void circleFillPoints(GLint x, GLint y, GLint radius) {
+void graphics::circleFillPoints(GLint x, GLint y, GLint radius) 
+{
     glBegin(GL_POLYGON); // outline of circle
     for (int i = 0; i < 360; i++) {
         float degInRad = i*3.14159/180;
@@ -52,7 +53,8 @@ void circleFillPoints(GLint x, GLint y, GLint radius) {
     glEnd();
     glFlush( );       
 }
-void squareFill(GLint x, GLint y, GLint width, GLint height) {
+void graphics::squareFill(GLint x, GLint y, GLint width, GLint height) 
+{
     glBegin(GL_QUADS);
     glVertex2i(x - width, y + height); // top left
     glVertex2i(x + width, y + height); // top right
@@ -61,7 +63,8 @@ void squareFill(GLint x, GLint y, GLint width, GLint height) {
     glEnd();
     glFlush( );
 }
-void squareOutline(GLint x, GLint y, GLint width, GLint height) {
+void graphics::squareOutline(GLint x, GLint y, GLint width, GLint height) 
+{
     glBegin(GL_LINE_LOOP);
     glVertex2i(x - width, y + height); // top left
     glVertex2i(x + width, y + height); // top right
@@ -71,12 +74,12 @@ void squareOutline(GLint x, GLint y, GLint width, GLint height) {
     glFlush( );
 }
 
-void drawBall(Ball ball) {
-
+void graphics::drawBall(const Game& game) 
+{
     // Draw the ball
     glColor3f(1, 1, 1);
 
-    circleFillPoints(ball.x, ball.y, ball.radius);
+    circleFillPoints(game.ball.x, game.ball.y, game.ball.radius);
 
     // Draw the ball's outline
     glColor3f(1, 1, 1);
@@ -84,7 +87,8 @@ void drawBall(Ball ball) {
     glLineWidth(2); // set line width to 2 pixel
     circlePlotPoints(game.ball.x, game.ball.y, game.ball.radius);
 }
-void drawPaddle(Paddle paddle){
+void graphics::drawPaddle(const Paddle& paddle)
+{
     // Draw the paddle
     glColor3f(1, 1, 1);
     squareFill(paddle.x, paddle.y, paddle.width, paddle.height);
@@ -96,10 +100,10 @@ void drawPaddle(Paddle paddle){
     squareOutline(paddle.x, paddle.y, paddle.width, paddle.height);
     
 }
-void drawGame() {
-    // draw all game objects
-    
 
+void graphics::drawGame(const Game& game) 
+{
+    // draw all game objects
     glClear(GL_COLOR_BUFFER_BIT); // Clear display window.
 
     // draw the paddles
@@ -107,7 +111,7 @@ void drawGame() {
     drawPaddle(game.paddleRight);
 
     // draw the ball
-    drawBall(game.ball);
+    drawBall(game);
 
 	glFlush(); // Process all OpenGL routines as quickly as possible.
 	glutSwapBuffers(); // Swap front and back buffers
@@ -120,109 +124,4 @@ void drawGame() {
         frameCount = 0;
         timeStart =  timeEnd;
     }
-}
-
-void idle(int) {
-    // called every frame
-
-    // cout<<"x: "<<game.ball.x<<" y: "<<game.ball.y<<" xSpeed: "<<game.ball.xSpeed<<" ySpeed: "<<game.ball.ySpeed<<endl;
-    // cout<<leftUp<<" "<<leftDown<<" "<<rightUp<<" "<<rightDown<<" "<<game.scored<<endl;
-    // cout<<"Left: "<<game.paddleLeft.y<<" Right: "<<game.paddleRight.y<<endl;
-
-    game.ballMove(); // move the ball
-    game.checkCollision(); // check if the ball has hit a wall or paddle and change the direction if it has
-
-    // move the paddles
-    if(leftUp) { // Left paddle up
-        game.paddleLeftMoveUp();
-    }
-    if(leftDown) { // Left paddle down
-        game.paddleLeftMoveDown();
-    }
-    if(rightUp) { // Right paddle up
-        game.paddleRightMoveUp();
-    }
-    if(rightDown) { // Right paddle down
-        game.paddleRightMoveDown();
-    }
-    glutPostRedisplay();
-	glFlush();
-    glutTimerFunc(1000/MAX_FPS, idle, 0); // call idle again after 1000/MAX_FPS milliseconds to maintain the frame rate
-}
-
-void keyboardFunc(unsigned char Key, int x, int y){
-    switch(Key){
-        case 'w':
-            leftUp = true;
-            break;
-        case 's':
-            leftDown = true;
-            break;
-        case 27: // escape key
-            exit(0);
-            break;
-        case ' ':
-            game.pauseGame();
-            break;
-        case 'r':
-            game.resetGame();
-            break;
-        default:
-            break;
-    }
-}
-void keyboardUpFunc(unsigned char Key, int x, int y){
-    switch(Key){
-        case 'w':
-            leftUp = false;
-            break;
-        case 's':
-            leftDown = false;
-            break;
-        default:
-            break;
-    }
-}
-void specialFunc(int Key, int x, int y){
-    switch(Key){
-        case GLUT_KEY_UP:
-            rightUp = true;
-            break;
-        case GLUT_KEY_DOWN:
-            rightDown = true;
-            break;
-        default:
-            break;
-    }
-}
-void specialUpFunc(int Key, int x, int y){
-    switch(Key){
-        case GLUT_KEY_UP:
-            rightUp = false;
-            break;
-        case GLUT_KEY_DOWN:
-            rightDown = false;
-            break;
-        default:
-            break;
-    }
-}
-
-int main(int argc, char** argv) {
-	setvbuf(stdout, NULL, _IONBF, 0); // For Eclipse stdout debugging
-
-	glutInit(&argc, argv);
-	init();
-	glutDisplayFunc(drawGame);
-    glutKeyboardFunc(keyboardFunc);
-    glutKeyboardUpFunc(keyboardUpFunc);
-    glutSpecialFunc(specialFunc);
-    glutSpecialUpFunc(specialUpFunc);
-
-    glutTimerFunc(1000/MAX_FPS, idle, 0); // call the idle function every 1/MAX_FPS seconds
-
-	// glutIdleFunc(idle);
-	glutMainLoop();
-
-	return 0;
 }

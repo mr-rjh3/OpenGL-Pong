@@ -13,6 +13,7 @@ void Game::ballMove() {
         ball.y += ball.ySpeed;
     }
 }
+
 void Game::checkCollision() {
     // right paddle
     if(ball.x + ball.radius >= paddleRight.x - paddleRight.width && ball.x - ball.radius < paddleRight.x + paddleRight.width) { // if the ball.x is within the paddle.x range
@@ -25,7 +26,7 @@ void Game::checkCollision() {
                 else { // if the speed is capped
                     ball.xSpeed = -ball.xSpeed; // just invert the direction
                 }
-                PlaySound(TEXT("sound.wav"), NULL, SND_FILENAME | SND_ASYNC);
+                PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
             }
                 
         }
@@ -41,25 +42,29 @@ void Game::checkCollision() {
                 else{ // if the speed is capped
                     ball.xSpeed = -ball.xSpeed; // just invert the direction
                 }
-                PlaySound(TEXT("sound.wav"), NULL, SND_FILENAME | SND_ASYNC);
+                PlaySound(TEXT("sounds/hitPaddle.wav"), NULL, SND_FILENAME | SND_ASYNC);
             }
         }
     }
     // bottom wall
     if (ball.y + ball.radius >= 600) { 
         ball.ySpeed = -ball.ySpeed;
+        PlaySound(TEXT("sounds/hitWall.wav"), NULL, SND_FILENAME | SND_ASYNC);
     }
     // top wall
     if (ball.y - ball.radius <= 0) { 
         ball.ySpeed = -ball.ySpeed;
+        PlaySound(TEXT("sounds/hitWall.wav"), NULL, SND_FILENAME | SND_ASYNC);
     }
     // right wall 
     if(ball.x + ball.radius >= 800) { 
         scorePoint();
+        PlaySound(TEXT("sounds/pointScored.wav"), NULL, SND_FILENAME | SND_ASYNC);
     }
     // left wall
     if(ball.x - ball.radius <= 0) { 
         scorePoint();
+        PlaySound(TEXT("sounds/pointScored.wav"), NULL, SND_FILENAME | SND_ASYNC);
     }
 }
 
@@ -89,6 +94,7 @@ void Game::paddleRightMoveDown(){
 }
 
 void Game::resetGame() {
+    PlaySound(TEXT("sounds/restart.wav"), NULL, SND_FILENAME | SND_ASYNC);
     ball.x = 400;
     ball.y = 300;
     ball.xSpeed = 2;
@@ -123,4 +129,12 @@ void Game::scorePoint() {
 }
 void Game::pauseGame() {
     paused = !paused;
+    if(paused) {
+        cout<<"Game Paused"<<endl;
+        PlaySound(TEXT("sounds/pause.wav"), NULL, SND_FILENAME | SND_ASYNC);
+    }
+    else {
+        cout<<"Game Resumed"<<endl;
+        PlaySound(TEXT("sounds/resume.wav"), NULL, SND_FILENAME | SND_ASYNC);
+    }
 }

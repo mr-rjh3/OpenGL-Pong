@@ -6,6 +6,10 @@
 #include <iostream>
 #include <time.h>
 
+#include <windows.h>
+#include <mmsystem.h>
+
+
 #include "game.hpp"
 #include "graphics.hpp"
 
@@ -16,7 +20,7 @@ using namespace std;
     // TODO: AI?
     // TODO: Scoreboard
 
-GLsizei minWidth = 800, minHeight = 600; // minimum window size
+GLsizei winWidth = 800, winHeight = 600; // minimum window size
 int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
 int frameCount = 0; // used for calculating the time between frames
 
@@ -25,11 +29,11 @@ void graphics::init(void)
 {
 	glutInitDisplayMode(GLUT_DOUBLE);  // GLUT_DOUBLE for double frame buffer
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(minWidth, minHeight);
+	glutInitWindowSize(winWidth, winHeight);
 	glutCreateWindow("Pong");
     glClearColor(0.0, 0.0, 0.0, 0.0); // set background color to gray
 	glMatrixMode(GL_PROJECTION);
-	gluOrtho2D(0.0, minWidth, minHeight, 0.0); // set top left as origin
+	gluOrtho2D(0.0, winWidth, winHeight, 0.0); // set top left as origin
 }
 
 void graphics::circlePlotPoints(GLint x, GLint y, GLint radius) 
@@ -73,6 +77,13 @@ void graphics::squareOutline(GLint x, GLint y, GLint width, GLint height)
     glEnd();
     glFlush( );
 }
+void renderText(GLint x, GLint y, const char *string) {
+    glRasterPos2i(x, y);
+    for (int i = 0; i < strlen(string); i++) {
+        // Make font size very large
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+    }
+}
 
 void graphics::drawBall(const Game& game) 
 {
@@ -112,6 +123,23 @@ void graphics::drawGame(const Game& game)
 
     // draw the ball
     drawBall(game);
+
+    // draw the left score
+    glColor3f(1, 1, 1);
+    char leftScore[10];
+    sprintf(leftScore, "%d", game.score[0]);
+    renderText(winWidth/2 - 32, 30, leftScore);
+
+    // draw the right score
+    glColor3f(1, 1, 1);
+    char rightScore[10];
+    sprintf(rightScore, "%d", game.score[1]);
+    renderText(winWidth/2 + 20, 30, rightScore);
+
+    if(game.paused){
+        glColor3f(1, 1, 1);
+        renderText(winWidth/2 - 32, winHeight/2, "PAUSED");
+    }
 
 	glFlush(); // Process all OpenGL routines as quickly as possible.
 	glutSwapBuffers(); // Swap front and back buffers

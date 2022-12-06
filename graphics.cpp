@@ -23,7 +23,7 @@ int timeStart = time(NULL), timeEnd; // used for calculating the time between fr
 int frameCount = 0; // used for calculating the time between frames
 
 //Texture variables
-bool isTexturesEnabled = true;
+bool graphics::isTexturesEnabled = false;
 GLuint* textureArray;
 
 //Graphics functions-------------------------------------------------------------------------------------------------------------------------------
@@ -144,18 +144,6 @@ void graphics::drawPaddle(const Paddle& paddle, int paddleTexture)
     // Draw the paddle
     glColor3f(1, 1, 1);
     squareFill(paddle.x, paddle.y, paddle.width, paddle.height, paddleTexture);
-}
-
-void graphics::drawMiddleLine(){
-    glColor3f(1, 1, 1);
-    glPointSize(2); // set point size to 2
-    glLineWidth(2); // set line width to 2 pixel
-    glBegin(GL_LINES);
-    for (int i = 0; i < winHeight; i += 20) {
-        glVertex2i(winWidth/2, i);
-        glVertex2i(winWidth/2, i + 10);
-    }
-    glEnd();
 }
 
 void graphics::drawMiddleLine(){

@@ -49,6 +49,8 @@ void specialFunc(int Key, int x, int y){
         case GLUT_KEY_DOWN:
             rightDown = true;
             break;
+        case GLUT_KEY_F1:
+            graphics::isTexturesEnabled = !graphics::isTexturesEnabled;
         default:
             break;
     }
@@ -109,6 +111,8 @@ void mainMenuFcn(GLint menuOption) {
 	case 2: // pause game
         game.pauseGame();
         break;
+    case 3:
+        exit(1);
 	}
 	glutPostRedisplay();
 }
@@ -116,9 +120,11 @@ void textureMenuFcn(GLint menuOption) {
     switch (menuOption) {
     case 1:
         // TODO texture 1
+        graphics::isTexturesEnabled = false;
         break;
     case 2:
         // TODO texture 2
+        graphics::isTexturesEnabled = true;
         break;
     }
     glutPostRedisplay();
@@ -131,9 +137,10 @@ void addMenu() {
     glutAddMenuEntry("Texture", 2);
 
 	glutCreateMenu(mainMenuFcn); // Create main pop-up menu.
-	glutAddMenuEntry("Restart", 1);
-	glutAddMenuEntry("Pause", 2);
-	glutAddSubMenu("Textures", textureMenuID);
+	glutAddMenuEntry("Restart \'r\'", 1);
+	glutAddMenuEntry("Pause \'Space\'", 2);
+	glutAddSubMenu("Textures \'Toggle: F1\'", textureMenuID);
+    glutAddMenuEntry("Quit \'Esc\'", 3);
 }
 
 

@@ -15,6 +15,7 @@ class graphics
         static void drawMiddleLine();
 
     public:
+        static bool isTexturesEnabled;
         static void init(void);
         static void drawGame(const Game& game);
 };

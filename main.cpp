@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "game.hpp"
 #include "graphics.hpp"
+#include "textureLoader.hpp"
 
 bool leftUp = false, leftDown = false, rightUp = false, rightDown = false; // booleans for key presses
 Game game; // create a game object
@@ -144,6 +145,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc, argv);
 	graphics::init();
+
 	glutDisplayFunc(drawGame);
     glutKeyboardFunc(keyboardFunc);
     glutKeyboardUpFunc(keyboardUpFunc);

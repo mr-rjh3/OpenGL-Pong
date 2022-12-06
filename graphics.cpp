@@ -7,11 +7,12 @@
 #include <time.h>
 
 #include <windows.h>
-#include <mmsystem.h>
+//#include <mmsystem.h>
 
 
 #include "game.hpp"
 #include "graphics.hpp"
+#include "textureLoader.hpp"
 
 using namespace std;
 
@@ -20,6 +21,10 @@ using namespace std;
 GLsizei winWidth = 800, winHeight = 600; // minimum window size
 int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
 int frameCount = 0; // used for calculating the time between frames
+
+//Texture variables
+bool isTexturesEnabled = true;
+GLuint* textureArray;
 
 //Graphics functions-------------------------------------------------------------------------------------------------------------------------------
 void graphics::init(void) 
@@ -31,6 +36,8 @@ void graphics::init(void)
     glClearColor(0.0, 0.0, 0.0, 0.0); // set background color to gray
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0.0, winWidth, winHeight, 0.0); // set top left as origin
+
+    textureArray = textureLoader::BindTexturesToArray();
 }
 
 void graphics::circlePlotPoints(GLint x, GLint y, GLint radius) 
@@ -54,8 +61,49 @@ void graphics::circleFillPoints(GLint x, GLint y, GLint radius)
     glEnd();
     glFlush( );       
 }
-void graphics::squareFill(GLint x, GLint y, GLint width, GLint height) 
+void graphics::squareFill(GLint x, GLint y, GLint width, GLint height, int paddleTexture) 
 {
+    //Textures use left-handed coordinates, while openGL vertices use right handed coordinate. 
+    //Therefore, must convert left-handed texcoords to right-handed vertices
+    if(isTexturesEnabled)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureArray[paddleTexture]);
+    }
+
+    glBegin(GL_QUADS);
+
+    if(isTexturesEnabled)
+    {
+        glTexCoord2f(0.0, 1.0);
+    }
+    glVertex2i(x - width, y - height); // bottom left
+
+    if(isTexturesEnabled)
+    {
+        glTexCoord2f(1.0, 1.0);
+    }
+    glVertex2i(x + width, y - height); // bottom right
+
+    if(isTexturesEnabled)
+    {
+        glTexCoord2f(1.0, 0.0);
+    }
+    glVertex2i(x + width, y + height); // top right
+
+    if(isTexturesEnabled)
+    {
+        glTexCoord2f(0.0, 0.0);
+    }
+    glVertex2i(x - width, y + height); // top left
+
+    glEnd();
+    if(isTexturesEnabled)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    /*
     glBegin(GL_QUADS);
     glVertex2i(x - width, y + height); // top left
     glVertex2i(x + width, y + height); // top right
@@ -63,17 +111,10 @@ void graphics::squareFill(GLint x, GLint y, GLint width, GLint height)
     glVertex2i(x - width, y - height); // bottom left
     glEnd();
     glFlush( );
+    */
 }
-void graphics::squareOutline(GLint x, GLint y, GLint width, GLint height) 
-{
-    glBegin(GL_LINE_LOOP);
-    glVertex2i(x - width, y + height); // top left
-    glVertex2i(x + width, y + height); // top right
-    glVertex2i(x + width, y - height); // bottom right
-    glVertex2i(x - width, y - height); // bottom left
-    glEnd();
-    glFlush( );
-}
+
+
 void renderText(GLint x, GLint y, const char *string) {
     glColor3f(1.0, 1.0, 1.0);
     glRasterPos2i(x, y);
@@ -98,18 +139,23 @@ void graphics::drawBall(const Game& game)
     glLineWidth(2); // set line width to 2 pixel
     circlePlotPoints(game.ball.x, game.ball.y, game.ball.radius);
 }
-void graphics::drawPaddle(const Paddle& paddle)
+void graphics::drawPaddle(const Paddle& paddle, int paddleTexture)
 {
     // Draw the paddle
     glColor3f(1, 1, 1);
-    squareFill(paddle.x, paddle.y, paddle.width, paddle.height);
+    squareFill(paddle.x, paddle.y, paddle.width, paddle.height, paddleTexture);
+}
 
-    // Draw the paddle's outline
+void graphics::drawMiddleLine(){
     glColor3f(1, 1, 1);
     glPointSize(2); // set point size to 2
     glLineWidth(2); // set line width to 2 pixel
-    squareOutline(paddle.x, paddle.y, paddle.width, paddle.height);
-    
+    glBegin(GL_LINES);
+    for (int i = 0; i < winHeight; i += 20) {
+        glVertex2i(winWidth/2, i);
+        glVertex2i(winWidth/2, i + 10);
+    }
+    glEnd();
 }
 
 void graphics::drawMiddleLine(){
@@ -129,12 +175,30 @@ void graphics::drawGame(const Game& game)
     // draw all game objects
     glClear(GL_COLOR_BUFFER_BIT); // Clear display window.
 
+    //Draw the background texture
+    if(isTexturesEnabled)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textureArray[textureLoader::BACKGROUND]);
+        glBegin(GL_QUADS);
+
+        //Textures use left-handed coordinates, while openGL vertices use right handed coordinate. 
+        //Therefore, must convert left-handed texcoords to right-handed vertices
+        glTexCoord2f(0, 0); glVertex2f(0, winHeight); // top left
+        glTexCoord2f(1, 0); glVertex2f(winWidth, winHeight); // top right
+        glTexCoord2f(1, 1); glVertex2f(winWidth, 0); // bottom right
+        glTexCoord2f(0, 1); glVertex2f(0, 0); // bottom left
+
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+    }
+    
     // draw dotted line down middle
     drawMiddleLine();
 
     // draw the paddles
-    drawPaddle(game.paddleLeft);
-    drawPaddle(game.paddleRight);
+    drawPaddle(game.paddleLeft, textureLoader::LEFT_PADDLE);
+    drawPaddle(game.paddleRight, textureLoader::RIGHT_PADDLE);
 
     // draw the ball
     drawBall(game);

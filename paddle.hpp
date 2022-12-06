@@ -12,8 +12,8 @@ class Paddle {
     public:
         Paddle(){
             y = 300;
-            width = 5;
-            height = 50;
+            width = 20;
+            height = 60;
             speed = 5;
         }
         int width;

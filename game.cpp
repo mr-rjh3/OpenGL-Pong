@@ -134,7 +134,7 @@ void Game::scorePoint() {
     ball.y = 300;
     paddleLeft.y = 300;
     paddleRight.y = 300;
-    cout<<"Score: "<<score[0]<<" - "<<score[1]<<endl;
+    // cout<<"Score: "<<score[0]<<" - "<<score[1]<<endl;
 }
 void Game::pauseGame() {
     if(!scored) {
@@ -143,7 +143,7 @@ void Game::pauseGame() {
             PlaySound(TEXT("sounds/pause.wav"), NULL, SND_FILENAME | SND_ASYNC);
         }
         else {
-            PlaySound(TEXT("sounds/unpause.wav"), NULL, SND_FILENAME | SND_ASYNC);
+            PlaySound(TEXT("sounds/resume.wav"), NULL, SND_FILENAME | SND_ASYNC);
         }
     }
 }

@@ -88,7 +88,7 @@ void graphics::drawBall(const Game& game)
     // Draw the ball
     // red
     glColor3f(1.0, 1.2-fabs(game.ball.xSpeed/(float)game.SPEED_CAP), 1.2-fabs(game.ball.xSpeed/(float)game.SPEED_CAP));
-    cout<<fabs((float)game.ball.xSpeed/(float)game.SPEED_CAP)<<endl;
+    // cout<<fabs((float)game.ball.xSpeed/(float)game.SPEED_CAP)<<endl;
 
     circleFillPoints(game.ball.x, game.ball.y, game.ball.radius);
 
@@ -111,6 +111,7 @@ void graphics::drawPaddle(const Paddle& paddle)
     squareOutline(paddle.x, paddle.y, paddle.width, paddle.height);
     
 }
+
 void graphics::drawMiddleLine(){
     glColor3f(1, 1, 1);
     glPointSize(2); // set point size to 2

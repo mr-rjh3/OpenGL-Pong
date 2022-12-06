@@ -26,7 +26,7 @@ class Game {
             paddleLeft.x = 20;
             paddleRight.x = 780;
             // set the match point
-            MATCH_POINT = 10;
+            MATCH_POINT = 5;
         }
         int MATCH_POINT;
         Ball ball;

@@ -5,12 +5,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-/*
-These are C code functions because, HBF wrote them this way.
-They use Malloc,fopen, printf and other stuff C++ programs 
-shouldn't use. Maybe change later. Maybe...
-*/
-
 int textureLoader::ImageLoad(char *filename, Image *image)
 {
     FILE *file;

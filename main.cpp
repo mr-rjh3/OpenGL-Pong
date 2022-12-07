@@ -5,7 +5,22 @@
 
 bool leftUp = false, leftDown = false, rightUp = false, rightDown = false; // booleans for key presses
 Game game; // create a game object
+
 #define MAX_FPS 120
+#define ESC_KEY 27
+
+enum MAIN_MENU_OPTIONS
+{
+    RESET_GAME,
+    PAUSE_GAME,
+    EXIT_GAME
+};
+
+enum TEXTURE_MENU
+{
+    DISABLE_TEXTURE,
+    ENABLE_TEXTURE
+};
 
 void keyboardFunc(unsigned char Key, int x, int y)
 {
@@ -16,7 +31,7 @@ void keyboardFunc(unsigned char Key, int x, int y)
         case 's':
             leftDown = true;
             break;
-        case 27: // escape key
+        case ESC_KEY: // escape key
             exit(0);
             break;
         case ' ':
@@ -105,25 +120,23 @@ void drawGame()
 
 void mainMenuFcn(GLint menuOption) {
 	switch (menuOption) {
-	case 1: // restart game
+	case RESET_GAME:
         game.resetGame();
 		break;
-	case 2: // pause game
+	case PAUSE_GAME:
         game.pauseGame();
         break;
-    case 3:
+    case EXIT_GAME:
         exit(1);
 	}
 	glutPostRedisplay();
 }
 void textureMenuFcn(GLint menuOption) {
     switch (menuOption) {
-    case 1:
-        // TODO texture 1
+    case DISABLE_TEXTURE:
         graphics::isTexturesEnabled = false;
         break;
-    case 2:
-        // TODO texture 2
+    case ENABLE_TEXTURE:
         graphics::isTexturesEnabled = true;
         break;
     }
@@ -133,14 +146,14 @@ void textureMenuFcn(GLint menuOption) {
 void addMenu() {
 	GLint textureMenuID;
     textureMenuID = glutCreateMenu(textureMenuFcn);
-    glutAddMenuEntry("No Texture", 1);
-    glutAddMenuEntry("Texture", 2);
+    glutAddMenuEntry("No Texture", DISABLE_TEXTURE);
+    glutAddMenuEntry("Texture", ENABLE_TEXTURE);
 
 	glutCreateMenu(mainMenuFcn); // Create main pop-up menu.
-	glutAddMenuEntry("Restart \'r\'", 1);
-	glutAddMenuEntry("Pause \'Space\'", 2);
+	glutAddMenuEntry("Restart \'r\'", RESET_GAME);
+	glutAddMenuEntry("Pause \'Space\'", PAUSE_GAME);
 	glutAddSubMenu("Textures \'Toggle: F1\'", textureMenuID);
-    glutAddMenuEntry("Quit \'Esc\'", 3);
+    glutAddMenuEntry("Quit \'Esc\'", EXIT_GAME);
 }
 
 

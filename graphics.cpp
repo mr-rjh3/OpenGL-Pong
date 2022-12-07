@@ -16,8 +16,6 @@
 
 using namespace std;
 
-    // TODO: Better colors / graphics
-
 GLsizei winWidth = 800, winHeight = 600; // minimum window size
 int timeStart = time(NULL), timeEnd; // used for calculating the time between frames
 int frameCount = 0; // used for calculating the time between frames
@@ -102,16 +100,6 @@ void graphics::squareFill(GLint x, GLint y, GLint width, GLint height, int paddl
     {
         glDisable(GL_TEXTURE_2D);
     }
-
-    /*
-    glBegin(GL_QUADS);
-    glVertex2i(x - width, y + height); // top left
-    glVertex2i(x + width, y + height); // top right
-    glVertex2i(x + width, y - height); // bottom right
-    glVertex2i(x - width, y - height); // bottom left
-    glEnd();
-    glFlush( );
-    */
 }
 
 
